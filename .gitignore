@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# VS
+settings.json
+
+# input files
+.txt
