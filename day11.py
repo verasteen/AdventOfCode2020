@@ -43,6 +43,13 @@ def become_empty(row, column, df):
 
     return df[column][row]
 
+# count the # 
+def count_occupied(df_copy):
+    count = 0
+    for i, col in df_copy.iteritems():
+        count += sum(col == '#')
+    return count
+
 # part 1
 df_copy = df.copy()
 df_new = pd.DataFrame().reindex_like(df_copy)
@@ -68,14 +75,8 @@ while a:
     else:
         df_copy = df_new.copy()
 
-# count the # 
-count = 0
-for i, col in df_copy.iteritems():
-    for j, row in col.iteritems():
-        if row == '#':
-            count += 1
 
-print(count)
+print('answer 1: ', count_occupied(df_copy))
 
 # part 2
 data = pd.read_csv('day11.txt', header=None)
@@ -192,12 +193,5 @@ while a:
     else:
         df_copy = df_new.copy()
 
-
-# count the # 
-count = 0
-for i, col in df_copy.iteritems():
-    for j, row in col.iteritems():
-        if row == '#':
-            count += 1
-
-print(count)
+  
+print('answer 2:', count_occupied(df_copy))
