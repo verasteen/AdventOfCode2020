@@ -41,10 +41,9 @@ def become_empty(row, column, df):
 
     return df[column][row]
 
-# count the # 
-def count_occupied(df_copy):
+def count_occupied(data):
     count = 0
-    for i, col in df_copy.iteritems():
+    for i, col in data.iteritems():
         count += sum(col == '#')
     return count
 
@@ -74,14 +73,6 @@ while a:
 print('answer 1: ', count_occupied(df_copy))
 
 # part 2
-data = pd.read_csv('day11.txt', header=None)
-df = data[0].apply(lambda x: pd.Series(list(x)))
-
-num_row = len(df.index)
-num_col = len(df.columns)
-
-
-
 def get_directions(row, column):
     up = [(x, column) for x in range(0,row)]
     up.reverse()
@@ -107,7 +98,7 @@ def get_directions(row, column):
 
     return up, down, left, right, up_left, down_left, up_right, down_right
 
-def choose_seat_empty(row, column, empty, occupied, current_value):
+def become_empty_dir(row, column, empty, occupied, current_value):
     if current_value == '.':
         return current_value
 
@@ -126,7 +117,7 @@ def choose_seat_empty(row, column, empty, occupied, current_value):
         return current_value
 
 
-def choose_seat_full(row, column, empty, occupied, current_value):
+def become_full_dir(row, column, empty, occupied, current_value):
     if current_value != 'L':
         return current_value
 
@@ -144,44 +135,39 @@ def choose_seat_full(row, column, empty, occupied, current_value):
     else:
         return current_value
 
+
+def get_empty_occupied(data):
+    occupied = []
+    empty = []
+    for i, col in data.iteritems():
+        for j, row in col.iteritems():
+            if row == '#':
+                occupied.append((j,i))
+            elif row == 'L':
+                empty.append((j,i))
+    return empty, occupied
+
+
+
 df_copy = df.copy()
 df_new = pd.DataFrame().reindex_like(df_copy)
 
 a = True
-x=0
+
 while a:
-    # make full
-    x += 1
-    print(x)
-# get full
-    occupied = []
-    empty = []
-    for i, col in df_copy.iteritems():
-        for j, row in col.iteritems():
-            if row == '#':
-                occupied.append((j,i))
-            elif row == 'L':
-                empty.append((j,i))
+    empty, occupied = get_empty_occupied(df_copy)
 
     for i, col in df_copy.iteritems():
         for j, row in col.iteritems():
-                df_new[i][j] = choose_seat_full(j, i, empty, occupied, row)
+                df_new[i][j] = become_full_dir(j, i, empty, occupied, row)
 
     df_copy = df_new.copy()
 
-    # get empty
-    occupied = []
-    empty = []
-    for i, col in df_copy.iteritems():
-        for j, row in col.iteritems():
-            if row == '#':
-                occupied.append((j,i))
-            elif row == 'L':
-                empty.append((j,i))
+    empty, occupied = get_empty_occupied(df_copy)
 
     for i, col in df_copy.iteritems():
         for j, row in col.iteritems():
-                df_new[i][j] = choose_seat_empty(j, i, empty, occupied, row)
+                df_new[i][j] = become_empty_dir(j, i, empty, occupied, row)
 
     if df_copy.equals(df_new):
         a = False
