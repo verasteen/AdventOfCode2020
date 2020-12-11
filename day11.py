@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 data = pd.read_csv('day11.txt', header=None)
 df = data[0].apply(lambda x: pd.Series(list(x)))
@@ -7,37 +6,36 @@ df = data[0].apply(lambda x: pd.Series(list(x)))
 num_row = len(df.index)
 num_col = len(df.columns)
 
+def get_range(row, column):
+    range_row = [x for x in [(row - 1), row, (row + 1)] if (x >= 0 and x < num_row)]
+    range_col = [x for x in [(column - 1), column, (column + 1)] if (x >= 0 and x < num_col)]
+    return range_row, range_col
+
 def become_occupied(row, column, df):
-    if df[column][row] == '.':
+    """if no seat surrounding given seat is occupied, become occupied"""
+    if df[column][row] != 'L':
         return df[column][row]
 
-    range_row = [(row - 1), row, (row + 1)]
-    range_col = [(column - 1), column, (column + 1)]
-    range_row = [x for x in range_row if (x >= 0 and x < num_row)]
-    range_col = [x for x in range_col if (x >= 0 and x < num_col)]
+    range_row, range_col = get_range(row, column)
 
     for col in range_col:
-        # also returns if seat is already occupied
         if sum(df[col][range_row] == '#') > 0:
             return df[column][row]
             break
-
     return '#'
 
 def become_empty(row, column, df):
-    if df[column][row] == '.':
+    """if more than 4 seats surrounding given seat are occupied, become empty"""
+    if df[column][row] != '#':
         return df[column][row]
 
-    range_row = [(row - 1), row, (row + 1)]
-    range_col = [(column - 1), column, (column + 1)]
-    range_row = [x for x in range_row if (x >= 0 and x < num_row)]
-    range_col = [x for x in range_col if (x >= 0 and x < num_col)]
+    range_row, range_col = get_range(row, column)
     
     seats_occu = 0
     for col in range_col:
-        # also returns false if seat is already occupied
         seats_occu += sum(df[col][range_row] == '#')
 
+    # also count given seat (4 + 1)
     if seats_occu >= 5:
         return 'L'
 
@@ -50,22 +48,20 @@ def count_occupied(df_copy):
         count += sum(col == '#')
     return count
 
+
 # part 1
 df_copy = df.copy()
 df_new = pd.DataFrame().reindex_like(df_copy)
 a = True
-x=0
+
 while a:
-    # make full
-    x += 1
-    print(x)
+
     for i, col in df_copy.iteritems():
         for j, row in col.iteritems():
             df_new[i][j] = become_occupied(j, i, df_copy)
 
     df_copy = df_new.copy()
-    print(x)
-    # make empty
+
     for i, col in df_copy.iteritems():
         for j, row in col.iteritems():
             df_new[i][j] = become_empty(j, i, df_copy)
@@ -74,7 +70,6 @@ while a:
         a = False
     else:
         df_copy = df_new.copy()
-
 
 print('answer 1: ', count_occupied(df_copy))
 
