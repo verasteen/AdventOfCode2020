@@ -23,7 +23,7 @@ class bitmask:
         mask_list_rev = mask_list[::-1]
         binary_rev = [x for x in str(self._get_binary_36(decimal)[::-1])]
         new_binary_rev = binary_rev + ['0'] * (len(mask_list_rev) - len(binary_rev))
-
+        print(binary_rev)
         for i in range(0, len(mask_list_rev)):
             if type(mask_list_rev[i]) == int:
                 new_binary_rev[i] = str(mask_list_rev[i])
@@ -35,10 +35,48 @@ class bitmask:
         
         return new_decimal
 
-def update_mem(p1, decimal, mem_adress):
-    new_decimal = p1.calculate_decimal(p1.mask, decimal)
-    mem[mem_adress] = new_decimal
+    def get_float_result(self, mask_list, decimal):
 
+        mask_list_rev = mask_list[::-1]
+        binary_rev = [x for x in str(self._get_binary_36(decimal)[::-1])]
+        new_binary_rev = binary_rev + ['0'] * (len(mask_list_rev) - len(binary_rev))
+
+        for i in range(0, len(mask_list_rev)):
+            if mask_list_rev[i] == 1:
+                new_binary_rev[i] = str(1)
+            elif mask_list_rev[i] == 'X':
+                new_binary_rev[i] = 'X'
+            else:
+                continue
+        
+        float_result = ''.join(new_binary_rev)[::-1]
+        
+        return float_result
+
+def get_all_decimals(float_result):
+    num_X = float_result.count('X')
+
+    list_of_X_combi = [bin(x)[2:].zfill(num_X) for x in range(0, 2**num_X)]
+
+    decimals = []
+    for combi in list_of_X_combi:
+        
+        j = 0
+        new_float = ''
+        for i in float_result:
+            if i == 'X':
+                new_float += combi[j]
+                j += 1
+            else:
+                new_float += i
+
+        new_decimal = int(new_float, 2)
+        decimals.append(new_decimal)
+
+    return decimals
+
+
+# part 1
 mem = {}
 
 for i in data:
@@ -51,5 +89,21 @@ for i in data:
 
         mem[mem_adress] = new_decimal
 
-print(sum(mem.values()))
+# print(sum(mem.values()))
 
+# part 2
+memm = {}
+
+for i in data:
+    if i.startswith('mask'):
+        p1 = bitmask(i[7:])
+    else:
+        mem_adress = int(re.search(r"\[([0-9_]+)\]", i).group(1))
+        value = int(re.search(r"= ([0-9_]+)", i).group(1))
+        float_result = p1.get_float_result(p1.mask_list, mem_adress)
+        all_mem_adress = get_all_decimals(float_result)
+
+        for adress in all_mem_adress:
+            memm[adress] = value
+        
+print(sum(memm.values()))
