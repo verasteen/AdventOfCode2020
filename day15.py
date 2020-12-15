@@ -20,12 +20,11 @@ print(new_number)
 
 
 ## part 2 - same but faster
-
-pos_1 = {0:1, 13:2, 1:3, 8:4, 6:5, 15:6}
+pos_1 = dict(zip(data, [x for x in range(1, (len(data) + 1))]))
 pos_2 = {}
 
-last_spoken_number = 15
-turn = 7
+last_spoken_number = data[-1]
+turn = len(data) + 1
 
 while turn != 30000001:
     
